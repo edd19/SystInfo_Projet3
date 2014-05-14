@@ -1,7 +1,7 @@
 set title 'Benchmark of writev/lseek+write'
 set xlabel 'size of buffer [B]'
 set ylabel 'time [ns]'
-set key right bottom
+set key left top
 set logscale x
 plot 'writev.csv' using 1:2 title 'writev(1mb file)',\
   'lseek.csv' using 1:2 title 'lseek+write(1mb file)',\
