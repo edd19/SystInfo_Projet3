@@ -1,0 +1,88 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{vmargin}
+\usepackage{graphicx}
+\usepackage{tabularx}
+
+\setlength{\parindent}{0mm}
+
+\renewcommand{\arraystretch}{2}
+
+\begin{document}
+
+% Page de titre
+\titlepage{
+	\today \\[7cm]
+	\begin{flushright}\sf\Huge
+	{\bfseries LSINF1252} \\[2mm]
+	{\bfseries SYSTEMES INFORMATIQUES 1} \\[3mm]
+	{\huge Rapport du Projet 3}
+	\end{flushright}
+	\ \\[8cm]
+	
+	Ndizera Eddy\\
+	Solaiman El Jilali
+}
+
+\clearpage
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+\quad Il nous a était demandé dans le cadre de ce projet d'implémenter 2 benchmarks : un portant sur l'appel système readdir et un autre afin de comparer writev avec lseek+write. Ce rapport se contentera de vous expliquer nos choix de scénarios et d'implémentation, une analyse des résultats de nos benchmarks avec graphe à l'appui ainsi que les difficultés rencontrées.
+
+
+\section{Choix de scénarios et d'implémentation}
+
+\subsection{writev/lseek+write}
+
+\quad Le scenario considéré pour ce benchmark s'est basé sur 2 critères: la taille du buffer (iov pour writev) ainsi que la taille des fichiers à écrire. La taille des buffer nous a été inspiré par le fait que writev écrit par blocs (iovec) dont la longueur peut être fixé tandis que write écrit par buffer dont la longueur aussi peut être fixé. De plus, comme on calcule le temps moyen par appel système(temps pour écrire le fichier divisé par le nombre d'appels à la méthode), cela nous permet de savoir lequel des deux est le plus rapide pour une taille de bloc définie. Le critère de taille des fichiers a aussi son importance dans le sens qu'il permet de comparer les performances des 2 appels sur une durée plus longue.\\
+
+
+
+\quad Pour l'implémentation du benchmark, nous avons écrit 2 méthodes "benchmark\_writev" et "benchmark\_lseek" qui prennent en argument un descripteur de fichier (fd), une taille du buffer/iov (buffer\_size), une taille de fichier à écrire (file\_size), un timer (t) et en dernier lieu un recorder (rec). Ces 2 méthodes, comme leur nom l'indique, sont utilisées pour calculer le temps que prend chaque appel système. \\
+
+\quad "benchmark\_writev" crée et initialise un tableau de iovec qui sont les blocs à écrire. L'initialisation terminé, il démarre le timer et  fait appel à writev qui va se charger d'écrire les blocs dans un fichier. L'écriture étant terminé, il stoppe le timer et enregistre le temp moyen pris pour l'écriture d'un bloc.\\
+
+\quad "benchmark\_lseek" fonctionne de manière semblable sauf qu'il va démarrer lle timer et entrer dans une boucle qui prendra fin quand il aura écrit un nombre de données égal à la taille du fichier à écrire. A l'intérieur de la boucle, la méthode écrit une chaîne de caractères dans un fichier via write puis repositionne le curseur du ficher à la fin de celui-ci. Lorsqu'on sort de la boucle, on arrête le timer et on enregistre le temps moyen pris pour écrire un bloc (ou buffer). \\
+
+\quad La méthode main se chargera simplement de faire appel à ces 2 méthodes en changeant leurs paramètres. Ce choix d'implémentation permet une modularité dans le sens qu'on peut facilement changer les tailles des buffer ou des fichiers à tester ou même en ajouter.\\
+
+\quad Nous tenons également à souligner que la méhode lseek n'est pas indispensable puisque write écrit à partir de la fin du fichier et donc, qu'il n'est pas nécessaire de repositionner le curseur du fichier chaque fois à la fin.
+
+
+
+\section{Analyse des résultats}
+
+\subsection{writev/lseek+write}
+
+\begin{figure}
+	
+	\includegraphics[scale = 0.3]{writev.png}
+	\includegraphics[scale = 0.3]{writev3.png}
+	\includegraphics[scale = 0.3]{writev4.png}
+	\caption{Graphe writev/lseek+write en fonction du temps et de la taille des buffer/iov}
+	\label{Graphe writev/lseek+write en fonction du temps et de la taille des buffer/iov}
+\end{figure}
+
+\quad En se réferrant a la figure 1, on constate que pour une taille de fichier plus petite, lseek+write prend moins de temps en moyenne pour écrire un bloc que writev. Cependant, pour un plus gros fichier, lseek+write prend cette fois-ci plus de temps que writev. Cette différence peut peut-être s'expliqer par l'appel à lseek qui devient plus coûteux au fur et à mesure que le fichier grossit. \\
+
+\quad De plus on constate que pour writev, le temps moyen par écriture est moindre pour un fichier élévé que pour un fichier de peite taille. Au contraire de lseek+write où le temps moyen est supérieure pour un fichier de grande taille. Une dernière observation est que le temps pris pour écrire augmente avec la taille des blocs à écrire, ce qui est tout à fait normale.
+
+\section{Difficultés rencontrées}
+
+\quad Une difficulté rencontrée fut de savoir quelles fichiers modifiées pour prendre en compte nos benchmarks. En effet, on a du chercher un peu partout pour savoir quelles fichiers ajouter ou lignes à ajouter pour que le projet prennent bien en compte nos projets (creation du make automatique pour nos projets).
+
+
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+
+
+\clearpage
+\appendix
+\
+
+\end{document}
