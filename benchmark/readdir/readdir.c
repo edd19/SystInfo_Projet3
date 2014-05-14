@@ -8,47 +8,88 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
-#define NBFILES 10
 
 #include "benchmark.h"
 
+#define NBFILES 10000
+
+void benchmark_readdir(); 
+
 int main (int argc, char *argv[]){
-	long long int * timerR = calloc(100,sizeof(double));
-	timer *t = timer_alloc();
+ 	long long int * timerR = calloc(NBFILES,sizeof(double));
 	recorder *readdir_rec = recorder_alloc("readdir.csv");
 	
-	mkdir("./temp",777);//Permissions peut etre a modifier
+  	//Creation du sous-dossier temp
 	
-	char filename[256];
+	int err = mkdir("./temp", 0700);
+	if(err == -1){	
+		perror("readdir");
+		exit(0);
+	}
+	
+	//Changement du dossier courant au sous-dossier temp	
+	
+	err = chdir("./temp/");
+	if(err == -1){	
+		perror("readdir");
+		exit(0);
+	}
+	
+	//Creation de NBFILES avec lecture du repertoire toutes les 100 iterations
+	
+	char filename[256]; //A modifier
 	FILE *fp = NULL;
 	int i;
-	
-	chdir("./temp/");  //AJOUTER VERIFICATION D'ERREUR
-	int i;
-	for(i = 0; i < MAX; i++){
+	for(i = 1; i < NBFILES; i++){
 	   sprintf(filename,"./fichier%i.txt",i);
 	   fp = fopen(filename,"w");
 	   memset(filename,0x00,256);
 	   fclose(fp);
-	   if(i%10==0){
-		struct dirent f;
-		start_timer(t);
-		benchmark_readdir();
-		timerR[MAX/10]=stop_timer(t);
+	   
+  	   if(i%100==1){
+		DIR *rep = opendir(".");
+		if(rep == NULL){	
+		   printf("OPENDIR\n");
+		   perror("readdir");
+		   exit(0);
+		}
+			   
+	        benchmark_readdir(rep,readdir_rec/*,i*/);
+	        err=closedir(rep);
+	        if(err == -1){	
+		   printf("CHDIR\n");
+		   perror("readdir");
+		   exit(0);
+	        }  
 	   }
 	}
-	//AJOUTE ECRITURE	
+	//Remplacement du dossier courant par le dossier parent
+	err = chdir("..");
+	if(err == -1){
+               perror("readdir");
+               exit(0);
+        }
+	//Suppression du dossier temporaire
+	err = system("rm -r ./temp");
+	if(err == -1){
+               perror("readdir");
+               exit(0);
+        }
+	
+	free(timerR);
+	free(readdir_rec);
+	
 }
 
-void benchmark_readdir (){
-	
-	struct dirent *lecture;
-	DIR *rep;
-	rep = opendir("./temp"); // a verifier
-	while((lecture = readdir(rep))){
-		printf("%s\n", lecture->d_name); //a retirer	
+void benchmark_readdir (DIR *rep,recorder *rec){
+	timer *t = timer_alloc();
+	struct dirent *lecture=NULL;
+	int i=0;
+	start_timer(t);
+	while((lecture = readdir(rep))!=NULL){
+		i++; //Nombre de fichier lus INCREMENTATION DE I NEGLIGEABLE
 	}
-	closedir(rep);
-	
 
+	write_record(rec,i,stop_timer(t));	
+	free(t);
 }
