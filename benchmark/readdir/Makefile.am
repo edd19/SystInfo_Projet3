@@ -7,7 +7,3 @@ PROG   = readdir
 GRAPHS = readdir.csv
 
 include ../lib/lib.mk
-~                                                                                                                                                     
-~                                                                                                                                                     
-~                                                                                                                                                     
-~                              

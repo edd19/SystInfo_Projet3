@@ -21,5 +21,6 @@ SUBDIRS =   \
 			shm \
 			thread \
 			types \
+			readdir \
 			writev 
 			
