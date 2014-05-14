@@ -11,16 +11,15 @@
 
 #include "benchmark.h"
 
-#define NBFILES 100000
-
+#define NBFILES 10000
 
 void benchmark_readdir(); 
 
 int main (int argc, char *argv[]){
-	long long int * timerR = calloc(NBFILES,sizeof(double));
+ 	long long int * timerR = calloc(NBFILES,sizeof(double));
 	recorder *readdir_rec = recorder_alloc("readdir.csv");
 	
-	//Creation du sous-dossier temp
+  	//Creation du sous-dossier temp
 	
 	int err = mkdir("./temp", 0700);
 	if(err == -1){	
@@ -47,7 +46,7 @@ int main (int argc, char *argv[]){
 	   memset(filename,0x00,256);
 	   fclose(fp);
 	   
-	   if(i%100==1){
+  	   if(i%100==1){
 		DIR *rep = opendir(".");
 		if(rep == NULL){	
 		   printf("OPENDIR\n");
