@@ -8,7 +8,7 @@
 #define SIZE1  1024
 #define SIZE2  4096
 #define SIZE3  16384
-
+#define SIZE4  32768
 #define FILE_SIZE1  1048576
 #define FILE_SIZE2  4194304
 
@@ -75,6 +75,9 @@ int main(int argc, char *argv[]){
 	benchmark_writev(fd, SIZE3, FILE_SIZE1, t, writev_rec);
 	close(fd);
 	
+	fd = creat("tmp1", 0700);
+	benchmark°writev(fd, SIZE4, FILE_SIZE1, t, writev_rec);
+	
 
 	fd = creat("tmp1", 0700);
 	benchmark_writev(fd, SIZE1, FILE_SIZE2, t, writev2_rec);
@@ -87,6 +90,9 @@ int main(int argc, char *argv[]){
 	fd = creat("tmp1", 0700);	
 	benchmark_writev(fd, SIZE3, FILE_SIZE2, t, writev2_rec);
 	close(fd);
+	
+	fd =creat("tmp1", 0700);
+	benchmark_witev(fd, SIZE4, FILE_SIZE2, t, write2_rec);
 
 	/*BENCHMARK DE LSEEK + WRITE*/
 	fd = creat("tmp2", 0700);
@@ -100,6 +106,10 @@ int main(int argc, char *argv[]){
 	fd = creat("tmp2", 0700);
 	benchmark_writev(fd, SIZE3, FILE_SIZE1, t, lseek_rec);
 	close(fd);
+	
+	fd = creat("tmp2", 0700);
+	benchmark_writev(fd, SIZE4, FILE_SIZE1, t, lseek_rec);
+        close(fd);
 
 
 	fd = creat("tmp2", 0700);
@@ -113,6 +123,11 @@ int main(int argc, char *argv[]){
 	fd = creat("tmp2", 0700);
 	benchmark_writev(fd, SIZE3, FILE_SIZE2, t, lseek2_rec);
 	close(fd);
+	
+	fd = creat("tmp2", 0700);
+        benchmark_writev(fd, SIZE4, FILE_SIZE2, t, lseek2_rec);
+        close(fd);
+                
 
 	//FREE
 	free(t);
