@@ -54,7 +54,7 @@ int main (int argc, char *argv[]){
 		   exit(0);
 		}
 			   
-	        benchmark_readdir(rep,readdir_rec/*,i*/);
+	        benchmark_readdir(rep,readdir_rec);
 	        err=closedir(rep);
 	        if(err == -1){	
 		   printf("CHDIR\n");
@@ -64,18 +64,19 @@ int main (int argc, char *argv[]){
 	   }
 	}
 	//Remplacement du dossier courant par le dossier parent
+	//Suppression du dossier temporaire
+	DIR *rep = opendir(".");	
+	struct dirent *lecture=NULL;
+	
+	while((lecture = readdir(rep))!=NULL){
+		unlink(lecture->d_name); //Nombre de fichier lus INCREMENTATION DE I NEGLIGEABLE
+	}
 	err = chdir("..");
 	if(err == -1){
                perror("readdir");
                exit(0);
         }
-	//Suppression du dossier temporaire
-	err = system("rm -r ./temp");
-	if(err == -1){
-               perror("readdir");
-               exit(0);
-        }
-	
+	rmdir("temp/");
 	free(timerR);
 	free(readdir_rec);
 	

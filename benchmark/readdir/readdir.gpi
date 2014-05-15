@@ -2,7 +2,6 @@ set title 'Benchmark of readdir'
 set xlabel 'number of files [N]'
 set ylabel 'time [ns]'
 set key right bottom
-set logscale x
 plot 'readdir.csv' using 1:2 title 'readdir'
                                                                                                                                          
                                                                                                                                                      
