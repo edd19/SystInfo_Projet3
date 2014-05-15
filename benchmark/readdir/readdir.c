@@ -23,18 +23,17 @@ int main (int argc, char *argv[]){
 	
 	int err = mkdir("./temp", 0700);
 	if(err == -1){	
-		perror("readdir");
-		exit(0);
+		perror("mkdir");
+		exit (EXIT_FAILURE);
 	}
 	
 	//Changement du dossier courant au sous-dossier temp	
 	
 	err = chdir("./temp/");
 	if(err == -1){	
-		perror("readdir");
-		exit(0);
-	}
-	
+		perror("chdir");
+		exit (EXIT_FAILURE);
+	}	
 	//Creation de NBFILES avec lecture du repertoire toutes les 100 iterations
 	
 	char filename[256]; //A modifier
@@ -49,37 +48,36 @@ int main (int argc, char *argv[]){
   	   if(i%100==1){
 		DIR *rep = opendir(".");
 		if(rep == NULL){	
-		   printf("OPENDIR\n");
-		   perror("readdir");
-		   exit(0);
+		   perror("opendir");
+		   exit(EXIT_FAILURE);
 		}
 			   
 	        benchmark_readdir(rep,readdir_rec);
 	        err=closedir(rep);
 	        if(err == -1){	
-		   printf("CHDIR\n");
-		   perror("readdir");
-		   exit(0);
+		   perror("closedir");
+		   exit(EXIT_FAILURE);
 	        }  
 	   }
 	}
 	//Remplacement du dossier courant par le dossier parent
-	//Suppression du dossier temporaire
 	DIR *rep = opendir(".");	
 	struct dirent *lecture=NULL;
 	
+	//Suppresion de tous les fichiers contenus dans ./temp	
 	while((lecture = readdir(rep))!=NULL){
-		unlink(lecture->d_name); //Nombre de fichier lus INCREMENTATION DE I NEGLIGEABLE
+		unlink(lecture->d_name); 
 	}
 	err = chdir("..");
 	if(err == -1){
-               perror("readdir");
-               exit(0);
+               perror("chdir");
+               exit(EXIT_FAILURE);
         }
+	//Suppression du dossier temporaire
 	rmdir("temp/");
 	free(timerR);
 	free(readdir_rec);
-	
+	free(fp);	
 }
 
 void benchmark_readdir (DIR *rep,recorder *rec){
@@ -88,9 +86,10 @@ void benchmark_readdir (DIR *rep,recorder *rec){
 	int i=0;
 	start_timer(t);
 	while((lecture = readdir(rep))!=NULL){
-		i++; //Nombre de fichier lus INCREMENTATION DE I NEGLIGEABLE
+		i++; //Nombre de fichiers effectivement lus 
 	}
 
 	write_record(rec,i,stop_timer(t));	
+	
 	free(t);
 }

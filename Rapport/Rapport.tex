@@ -10,11 +10,11 @@
 
 
 
-
-
 \setlength{\parindent}{0mm}
 
+
 \renewcommand{\arraystretch}{2}
+
 
 \begin{document}
 
@@ -38,38 +38,41 @@
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 
-\quad Dans le cadre de ce projet, il nous a été demandé d'implémenter 2 benchmarks : un portant sur l'appel système readdir et un autre afin de comparer writev avec lseek+write. Ce rapport contiendra des explications sur nos choix de scénarios et d'implémentation, une analyse des résultats de nos benchmarks avec graphe à l'appui ainsi que les difficultés rencontrées.
+\quad Dans le cadre de ce projet, il nous a été demandé d'implémenter 2 benchmarks : un portant sur l'appel système readdir et un autre afin de comparer \textit{writev} avec \textit{lseek}+\textit{write}. Ce rapport contiendra des explications sur nos choix de scénarios et d'implémentation, une analyse des résultats de nos benchmarks avec graphe à l'appui ainsi que les difficultés rencontrées.
 
 
 \section{Choix de scénarios et d'implémentation}
 
-\subsection{writev/lseek+write}
+\subsection{\textit{writev}/\textit{lseek}+\textit{write}}
 
-\quad Le scénario considéré pour ce benchmark s'est basé sur un critère: la taille du buffer (iov pour writev). La taille des buffer nous a été inspiré par le fait que writev écrit par blocs (iovec) dont la longueur peut être fixé tandis que write écrit par buffers dont la longueur aussi peut être fixé. Pour ce scénario, on compare le temps pris par writev et lseek+write pour écrire un fichier d'une taille fixe mais pour des tailles de buffers différentes. D'autres scénarios ont été considérés comme le fait de d'utiliser 2 tailles de fichiers mais ils n'ont pas été repris du fait du peu d'informations qu'ils ajoutaient en plus. \\
+\quad Le scénario considéré pour ce benchmark s'est basé sur un critère: la taille du buffer (iov pour writev). La taille des buffer nous a été inspiré par le fait que \textit{writev} écrit par bloc (iovec) dont la longueur peut être fixé tandis que \textit{write} écrit par buffers dont la longueur aussi peut être fixée. Pour ce scénario, on compare le temps pris par \textit{writev} et \textit{lseek}+\textit{write} pour écrire un fichier d'une taille fixe mais pour des tailles de buffers différentes. D'autres scénarios ont été considérés comme le fait de d'utiliser 2 tailles de fichiers mais ils n'ont pas été repris du fait du peu d'informations qu'ils ajoutaient en plus. \\
 
-\quad Pour l'implémentation du benchmark, nous avons écrit 2 méthodes \textit{benchmark\_writev} et \textit{benchmark\_lseek} qui prennent en argument un descripteur de fichier (fd), une taille du buffer/iov (buffer\_size), une taille de fichier à écrire (file\_size), un timer (t) et en dernier lieu un recorder (rec). Ces 2 méthodes, comme leur nom l'indique, sont utilisées pour calculer le temps que prend chaque appel système writev et lseek+write. \\
+\quad Pour l'implémentation du benchmark, nous avons écrit 2 méthodes \textit{benchmark\_writev} et \textit{benchmark\_lseek} qui prennent en argument un descripteur de fichier (fd), une taille du buffer/iov (buffer\_size), une taille de fichier à écrire (file\_size), un timer (t) et en dernier lieu un recorder (rec). Ces 2 méthodes, comme leur nom l'indiquent, sont utilisées pour calculer le temps que prend chaque appel système writev et lseek+write. \\
 
-\quad \textit{benchmark\_writev} crée et initialise un tableau de iovec qui sont les blocs à écrire. Une fois l'initialisation terminée, il démarre le timer et fait appel à writev qui va se charger d'écrire les blocs dans un fichier. L'écriture étant terminé, il stoppe le timer et enregistre le temps  pris pour l'écriture d'un fichier.\\
+\quad \textit{benchmark\_writev} crée et initialise un tableau de iovec qui sont les blocs à écrire. Une fois l'initialisation terminée, il démarre le timer et fait appel à writev qui va se charger d'écrire les blocs dans un fichier. L'écriture étant terminée, il stoppe le timer et enregistre le temps  pris pour l'écriture d'un fichier.\\
 
-\quad \textit{benchmark\_lseek} fonctionne de manière similaire sauf qu'il va démarrer le timer et entrer dans une boucle qui prendra fin quand il aura écrit un nombre de données égal à la taille du fichier à écrire. A l'intérieur de la boucle, la méthode écrit une chaîne de caractères dans un fichier via write puis repositionne le curseur du ficher à la fin de celui-ci. Lorsqu'on sort de la boucle, on arrête le timer et on enregistre le temps pris pour écrire un fichier. \\
+\quad \textit{benchmark\_lseek} fonctionne de manière similaire sauf qu'il va démarrer le timer et entrer dans une boucle qui prendra fin quand il aura écrit une quantité de données égale à la taille du fichier à écrire. A l'intérieur de la boucle, la méthode écrit une chaîne de caractères dans un fichier via write puis repositionne le curseur du ficher à la fin de celui-ci. Lorsqu'on sort de la boucle, on arrête le timer et on enregistre le temps pris pour écrire un fichier. \\
 
-\quad La méthode main se chargera simplement de faire appel à ces 2 méthodes en changeant leurs paramètres. Ce choix d'implémentation permet une modularité dans le sens où on peut facilement changer les tailles des buffer ou des fichiers à tester.\\
+\quad La fonction main se chargera simplement de faire appel à ces 2 méthodes en changeant leurs paramètres. Ce choix d'implémentation permet une modularité dans le sens où on peut facilement changer les tailles des buffer ou des fichiers à tester.\\
 
-\quad Nous tenons également à souligner que la méthode lseek n'est pas indispensable puisque write écrit à partir de la fin du fichier et donc, qu'il n'est pas nécessaire de repositionner le curseur du fichier chaque fois à la fin.\\
+\quad Nous tenons également à souligner que la fonction \textit{lseek} n'est pas indispensable puisque write écrit à partir de la fin du fichier et donc, il n'est pas nécessaire de repositionner le curseur du fichier chaque fois à la fin.\\
 
 
-\subsection{readdir}
-\quad Le scénario considéré pour pour ce benchmark se base sur le nombre de fichiers contenus dans le répertoire sur lequel l'appel système readdir s'appliquera.
+\subsection{\textit{readdir}}
+\quad Le scénario considéré pour pour ce benchmark se base sur le nombre de fichiers contenus dans le répertoire sur lequel l'appel système \textit{readdir} s'appliquera.
 
 \quad En effet, intuitivement, nous pensions que le temps mis pour lister les fichiers contenu dans un dossier serait proportionnel au nombre de fichiers qu'il contient.
 Pour vérifier cela, nous avons implémenté un benchmark générant un grand nombre de fichiers et lisant à intervalle régulier le répertoire.
 Pour travailler proprement, une partie de la fonction main consiste à créer un sous-répertoire ./temp au répertoire courant et c'est dans ce répertoire que seront créés l'ensemble des fichiers. Soulignons que ce répertoire sera supprimé après l'application du benchmark afin de ne pas polluer inutilement le dossier de benchmark.
 
-\quad Dans l'état actuel de notre benchmark, nous générons 10000 fichiers dans le dossier ./temp et tous les 100 fichiers (à partir de premier fichier), nous lançons \textit{benchmark\_readdir}. Lors de l'exécution de \textit{benchmark\_readdir}, nous démarrons un timer juste avant le parcourt complet du répertoire ./temp et l'arrêtons une fois que tous les fichiers de ce répertoire ont été lus. Dans la boucle parcourant ce répertoire nous incrémentons un compteur qui n'est effectivement pas compris dans l'appel système readdir. Cela dit, nous avons supposé cette incrémentation négligeable. De plus, cette opération s'effectue à chaque itération de la boucle. De ce fait, le "coût" de cette incrémentation est uniformément répartie sur chacune des lecture.
+\quad Dans l'état actuel de notre benchmark, nous générons 10000 fichiers dans le dossier ./temp et tous les 100 fichiers (à partir du premier fichier), nous lançons \textit{benchmark\_readdir}. Lors de l'exécution de \textit{benchmark\_readdir}, nous démarrons un timer juste avant le parcourt complet du répertoire ./temp et l'arrêtons une fois que tous les fichiers de ce répertoire ont été lus. Dans la boucle parcourant ce répertoire nous incrémentons un compteur qui n'est effectivement pas compris dans l'appel système readdir. Cela dit, nous avons supposé cette incrémentation négligeable. De plus, cette opération s'effectue à chaque itération de la boucle. De ce fait, le "coût" de cette incrémentation est uniformément répartie sur chacune des lecture.
+
+\quad D'autre part, le premier benchmark que nous avons élaboré se basait sur la taille des fichiers à parcourir par \textit{readdir}. Nous nous sommes rapidement rendu compte que l'appel système \textit{readdir} est indépendant de la taille des fichiers à parcourir. De ce fait, ce benchmark n'a pas été retenu. \\
+\quad Subséquemment, étant donné qu'un répertoire est traité comme un fichier dont le contenu est la liste des fichiers référencés\footnote{Voir page 145 du syllabus SINF1252-Theorie}, il n'y a donc aucun intérêt à générer des répertoires à coté des fichiers générés. 
 
 \section{Analyse des résultats}
 
-\subsection{writev/lseek+write}
+\subsection{\textit{writev}/\textit{lseek}+\textit{write}}
 
 \end{multicols}
 
@@ -77,15 +80,15 @@ Pour travailler proprement, une partie de la fonction main consiste à créer un s
 	
 	\includegraphics[scale = 0.3]{writev.png}
 	\includegraphics[scale = 0.3]{writev3.png}
-	\caption{Graphe writev/lseek+write en fonction du temps et de la taille des buffer/iov}	
-	\label{Graphe writev/lseek+write en fonction du temps et de la taille des buffer/iov}
+	\caption{Graphe writev en fonction du temps et de la taille des buffer/iov}	
+	\label{G}
 \end{figure}
 
 \begin{multicols}{2}
 
-\quad En se référant à la figure 1, on constate que le temps pris pour écrire un fichier d'une taille fixe par lseek+write décroît quand le buffer augmente jsuqu'à se stabiliser à partir d'une certaine taille de buffer. On observe de plus que l'appel à writev est en moyenne plus rapide pour écrire que write+lseek. Ceci est d'autant plus visible que le buffer est petit. Cela s'explique par le fait que plus le buffer est petit plus grand le nombre d'appels systèmes se font. Comme lseek+write fait appel à 2 appels systèmes que sont write et lseek, plus on fait appels à eux plus il est normale qu'ils prennent plus de temps même si au final ils écrivent la même quantité d'informations. Une dernière observation est le fait que writev garde un temps constant quelque soit le buffer. \\
+\quad En se référant à la figure 1, on constate que le temps pris pour écrire un fichier d'une taille fixe par \textit{lseek}+\textit{write} décroît quand le buffer augmente jusqu'à se stabiliser à partir d'une certaine taille de buffer. On observe de plus que l'appel à writev est en moyenne plus rapide pour écrire que \textit{write}+\textit{lseek}. Ceci est d'autant plus visible que le buffer est petit. ??????Cela s'explique par le fait que plus le buffer est petit plus grand le nombre d'appels systèmes se font. Comme \textit{lseek}+\textit{write} fait appel à 2 appels systèmes que sont \textit{write} et \textit{lseek}, plus on fait appels à eux plus il est normal qu'ils prennent plus de temps même si au final ils écrivent la même quantité d'informations. Une dernière observation est le fait que \textit{writev} garde un temps constant quelque soit le buffer. \\
 
-\quad En conclusion, il est plus intéressant d'utiliser writev que lseek+write. L'appel système writev est plus rapide en moyenne que lseek+write et à l'avantage de garder un temps constant pour une même taille de fichier.
+\quad En conclusion, il est plus intéressant d'utiliser \textit{writev} que \textit{lseek}+\textit{write}. L'appel système \textit{writev} est plus rapide en moyenne que \textit{lseek}+\textit{write} et a l'avantage de garder un temps constant pour une même taille de fichier.
 
 
 \subsection{readdir}
@@ -107,9 +110,9 @@ En se référant aux différentes figures générées, on constate que le temps mis po
 
 \section{Difficultés rencontrées}
 
-\quad Une difficulté rencontrée fut de savoir quels fichiers modifiées pour prendre en compte nos benchmarks. En effet, nous avons du chercher à plusieurs endroits pour savoir quels fichiers ou lignes ajouter pour que le projet prenne bien en compte nos modifications (creation du make automatique pour nos projets).\\
+\quad Une difficulté rencontrée fut de savoir quels fichiers modifier pour prendre en compte nos benchmarks. En effet, nous avons du chercher à plusieurs endroits pour savoir quels fichiers ou lignes ajouter pour que le projet prenne bien en compte nos modifications (creation du make automatique pour nos projets).\\
 
-\quad Une autre difficulté fut de savoir quels critères choisir pour son benchmark et notamment faire un choix entre temps moyen et temps total. En effet, les résultats du benchmark peuvent se voir changer et on peut en arriver à d'autres conclusions. C'est ce qui nous est arrivé avec notre benchmark pour lseek+write.\\
+\quad Une autre difficulté fut de savoir quels critères choisir pour son benchmark et notamment faire un choix entre temps moyen et temps total. En effet, les résultats du benchmark peuvent se voir changer et on peut en arriver à d'autres conclusions. C'est ce qui nous est arrivé avec notre \textit{benchmark} pour lseek+write.\\
 
 \quad A la génération des fichiers dans le benchmark de readdir, nous avons eu quelques difficultés liées au fait que nous ne rendions pas compte qu'il fallait ouvrir et fermer le répertoire à chaque appel du benchmark pour que la lecture se fasse effectivement depuis le début du répertoire.
 
