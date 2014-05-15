@@ -4,6 +4,7 @@
 #include <sys/uio.h>
 
 #include "benchmark.h"
+#include "copy.h"
 
 #define SIZE  128 // taille du buffer en bytes
 #define MAX   1024 //multiplicateur maximum pour la taille du buffer
@@ -92,6 +93,8 @@ int main(int argc, char *argv[]){
 		benchmark_writev(fd, SIZE * i, FILE_SIZE, t, writev_rec);
 		close(fd);
 	}
+
+	rm("tmp1");
 	
 	/*BENCHMARK DE LSEEK + WRITE*/
 
@@ -99,7 +102,9 @@ int main(int argc, char *argv[]){
 		fd = creat("tmp2", 0700);
 		benchmark_lseek(fd, SIZE * i, FILE_SIZE, t, lseek_rec);
 		close(fd);
-	}	         
+	}	
+	
+	rm("tmp2");         
 
 	//FREE
 	free(t);
