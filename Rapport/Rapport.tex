@@ -74,36 +74,33 @@ Pour travailler proprement, une partie de la fonction main consiste à créer un s
 
 \subsection{\textit{writev}/\textit{lseek}+\textit{write}}
 
-\end{multicols}
 
-\begin{figure}
-	
-	\includegraphics[scale = 0.3]{writev.png}
-	\includegraphics[scale = 0.3]{writev3.png}
-	\caption{Graphe writev en fonction du temps et de la taille des buffer/iov}	
+
+\begin{figure*}
+	\includegraphics[scale = 0.28]{writev.png}
+	\includegraphics[scale = 0.28]{writev3.png}	
+	\caption{Graphe du benchmark sur writev et lseek+write en fonction de la taille du buffer en byte et du temps.}
 	\label{G}
-\end{figure}
+\end{figure*}
 
-\begin{multicols}{2}
 
-\quad En se référant à la figure 1, on constate que le temps pris pour écrire un fichier d'une taille fixe par \textit{lseek}+\textit{write} décroît quand le buffer augmente jusqu'à se stabiliser à partir d'une certaine taille de buffer. On observe de plus que l'appel à writev est en moyenne plus rapide pour écrire que \textit{write}+\textit{lseek}. Ceci est d'autant plus visible que le buffer est petit. ??????Cela s'explique par le fait que plus le buffer est petit plus grand le nombre d'appels systèmes se font. Comme \textit{lseek}+\textit{write} fait appel à 2 appels systèmes que sont \textit{write} et \textit{lseek}, plus on fait appels à eux plus il est normal qu'ils prennent plus de temps même si au final ils écrivent la même quantité d'informations. Une dernière observation est le fait que \textit{writev} garde un temps constant quelque soit le buffer. \\
+
+\quad En se référant à la figure 1, on constate que le temps pris pour écrire un fichier d'une taille fixe par \textit{lseek}+\textit{write} décroît quand le buffer augmente jusqu'à se stabiliser à partir d'une certaine taille de buffer. On observe de plus que l'appel à writev est en moyenne plus rapide pour écrire que \textit{write}+\textit{lseek}. Ceci est d'autant plus visible que le buffer est petit (entre 100 et 1000 bytes). Cela s'explique par le fait que plus le buffer est petit plus grand le nombre d'appels systèmes se font. Comme \textit{lseek}+\textit{write} fait appel à 2 appels systèmes que sont \textit{write} et \textit{lseek}, plus on fait appels à eux plus il est normal qu'ils prennent plus de temps même si au final ils écrivent la même quantité d'informations. Une dernière observation est le fait que \textit{writev} garde un temps constant quelque soit le buffer. \\
 
 \quad En conclusion, il est plus intéressant d'utiliser \textit{writev} que \textit{lseek}+\textit{write}. L'appel système \textit{writev} est plus rapide en moyenne que \textit{lseek}+\textit{write} et a l'avantage de garder un temps constant pour une même taille de fichier.
 
 
 \subsection{readdir}
 
-\end{multicols}
-
-\begin{figure}
-	
-	\includegraphics[scale = 0.3]{readdir2.png}
-	\includegraphics[scale = 0.3]{readdir3.png}
-	\caption{Graphe du temps mis par l'appel systeme readdir sur un répertoire en fonction du nombre de fichier dans ce repertoire  }	
+\begin{figure*}
+	\includegraphics[scale = 0.28]{readdir2.png}
+	\includegraphics[scale = 0.28]{readdir3.png}
 	\label{Graphe du temps mis par l'appel systeme readdir sur un repertoire en fonction du nombre de fichier dans ce repertoire}
-\end{figure}
+	\caption{Graphe du temps mis par l'appel systeme readdir sur un repertoire en fonction du nombre de fichier dans ce repertoire}
+\end{figure*}
+	
+	
 
-\begin{multicols}{2}
 
 \quad Pour la représentation graphique de ce benchmark, nous avons choisis des échelles linéaires.
 En se référant aux différentes figures générées, on constate que le temps mis pour parcourir complètement un répertoire est linéaire et proportionnel au nombre de fichiers contenus dans se ce répertoire. Quelques lectures de répertoire prennent légèrement plus de temps que d'autres. Cela est probablement dû au fait que le processus est mis en attente lorsqu'un autre processus fait des lectures.
@@ -115,6 +112,8 @@ En se référant aux différentes figures générées, on constate que le temps mis po
 \quad Une autre difficulté fut de savoir quels critères choisir pour son benchmark et notamment faire un choix entre temps moyen et temps total. En effet, les résultats du benchmark peuvent se voir changer et on peut en arriver à d'autres conclusions. C'est ce qui nous est arrivé avec notre \textit{benchmark} pour lseek+write.\\
 
 \quad A la génération des fichiers dans le benchmark de readdir, nous avons eu quelques difficultés liées au fait que nous ne rendions pas compte qu'il fallait ouvrir et fermer le répertoire à chaque appel du benchmark pour que la lecture se fasse effectivement depuis le début du répertoire.
+
+\quad Lors de notre projet, nous avons inclut le projet initial (benchmark) dans un répertoire git que nous avons crée sur github (https://github.com/edd19/SystInfo\_Projet3). Ca a eut pour conséquence que l'historique des précédents commits a été écrasée. Le seul moyen qu'on a trouvé dès lors pour faire le patch a été de mettre les fichiers crées et modifiés le dossier initial (benchmark) et de patcher ce dernier. Donc pour voir les différents commits que nous avons faits durant le projet vous pouvez visiter le lien suivant : https://github.com/edd19/SystInfo\_Projet3.
 
 \end{multicols}
 
